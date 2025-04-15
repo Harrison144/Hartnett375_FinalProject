@@ -5,14 +5,81 @@ date: "`r Sys.Date()`"
 output: html_document
 ---
 
-```{r setup, include=FALSE}
-knitr::opts_chunk$set(echo = TRUE)
-```
-
 ## Abstract:
 
 This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
 
-```{r cars}
-summary(cars)
+## Checking for and Installing Packages
+We are going to start by identifying any packages needed for our analysis. In order to avoid any unnecessary re-installation or loading, we are going to set up a way to automatically check and then load only what we need.
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+# Store string containing all required packages
+my_packages <- c('igraph', 'RColorBrewer', 'ggplot2', 'dplyr', 'janitor', 'stringr', 'pdf_tools', 'stopwords')
+
 ```
+
+Figure out which of these packages is already installed
+``` {r}
+# Store all installed packages
+ya_installed <- library()$results[,1]
+
+# Check whether required packages are already installed and grab only those that still need installation
+need_install<-my_packages[!(my_packages %in% ya_installed)]
+
+#install required packages
+lapply(need_install, install.packages, character.only = TRUE)
+
+```
+
+Now, load only unloaded packages
+``` {r}
+# Store all installed packages
+ya_loaded <- (.packages())
+
+# Check whether required packages are already installed and grab only those that still need installation
+need_load<-my_packages[!(my_packages %in% ya_loaded)]
+
+# Load required packages
+lapply(need_load, require, character.only = TRUE)
+```
+## Import the Private Security Database
+```{r}
+PSD <- read.csv("~/Hartnett375_FinalProject/PSD_V4_1990-2007_csv.csv", row.names=NULL, sep=";")
+
+View(PSD)
+head(PSD)
+summarize(PSD)
+```
+
+# Preprocess the data
+(To be converted into a matrix and graph object)
+```{r}
+prepped_data <- PSD %>%
+  group_by(clientsc) %>%
+  summarize(
+    target_country = locsc
+  )
+View(prepped_data)
+```
+
+# Create a graph object that we can visualize
+```{r}
+PSD_matrix <- as.matrix(prepped_data)
+#View(PSD_matrix)
+
+PSD.g <- graph_from_edgelist(PSD_matrix, directed = TRUE)
+PSD.g
+```
+
+# Assign Node and Edge attributes
+```{r}
+V(PSD.g)$vertex_degree <- degree(PSD.g)# Assign a degree attribute
+edge_weights <- E(PSD.g)$edge_weight <- PSD$nofirm#Make edgeweights the number of firms employed
+#Preliminary Visualization
+lo_nice = layout_nicely(PSD.g)
+plot(PSD.g, layout = lo_nice, vertex.size = log(V(PSD.g)$vertex_degree) * 6, edge.width = edge_weights, edge.arrow.size = 0.9,
+     title = "Private Military Contracts by Country",
+     vertex.label.color = "black")
+```
+Node attribute vs Edge attribute
