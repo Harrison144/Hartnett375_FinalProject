@@ -7,7 +7,7 @@ output: html_document
 
 ## Abstract:
 
-This is an R Markdown document. Markdown is a simple formatting syntax for authoring HTML, PDF, and MS Word documents. For more details on using R Markdown see <http://rmarkdown.rstudio.com>.
+The purpose of this script is to create a network visualization of the private security database (PSD) with emphasis on which countries tend to employ the most private military/security companies, and where they tend to deploy them.
 
 ## Checking for and Installing Packages
 We are going to start by identifying any packages needed for our analysis. In order to avoid any unnecessary re-installation or loading, we are going to set up a way to automatically check and then load only what we need.
@@ -15,7 +15,7 @@ We are going to start by identifying any packages needed for our analysis. In or
 knitr::opts_chunk$set(echo = TRUE)
 
 # Store string containing all required packages
-my_packages <- c('igraph', 'RColorBrewer', 'ggplot2', 'dplyr', 'janitor', 'stringr', 'pdf_tools', 'stopwords')
+my_packages <- c('igraph', 'RColorBrewer', 'ggplot2', 'dplyr', 'janitor', 'stringr', 'stopwords')
 
 ```
 
@@ -60,6 +60,63 @@ prepped_data <- PSD %>%
   summarize(
     target_country = locsc
   )
+#View(prepped_data)
+
+#Change country codes to actual names
+for (i in prepped_data) {
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "ANG", "Angola")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "AUL", "Australia")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "AZE", "Azerbaijan")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "BOS", "Bosnia")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "CAN", "Canada")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "COL", "Columbia")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "CON", "Congo")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "CPA", "Commonwealth Parlimentary Association")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "CRO", "Croatia")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "DRC", "Democratic Republic of Congo")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "ETH", "Ethiopia")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "IRQ", "Iraq")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "ITA", "Italy")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "LBR", "Liberia")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "MZM", "Mozambique")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "PHI", "Philipines")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "RWA", "Rwanda")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "SAF", "South Africa")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "SIE", "Sierra Leone")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "UGA", "Uganda")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "UK", "United Kingdom")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "UKG", "United Kingdom")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "UN", "United Nations")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "USA", "United States")
+  prepped_data$clientsc <- str_replace_all(prepped_data$clientsc, "WB", "West Bank")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "ANG", "Angola")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "IRQ", "Iraq")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "COL", "Columbia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "AZE", "Azerbaijan")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "BOS", "Bosnia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "AFG", "Afghanistan")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "CON", "Congo")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "CRO", "Croatia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "DRC", "Democratic Republic of Congo")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "ETH", "Ethiopia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "LBR", "Liberia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "MZM", "Mozambique")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "PHI", "Philipines")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "RWA", "Rwanda")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "BUI", "Burundi")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "SIE", "Sierra Leone")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "UGA", "Uganda")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "YUG", "Yugoslavia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "SUD", "Sudan")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "NEP", "Nepal")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "SOM", "Somalia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "IVO", "Ivory Coast")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "GRG", "Georgia")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "NIG", "Nigeria")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "ALB", "Albania")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "GUA", "Guatemala")
+  prepped_data$target_country <- str_replace_all(prepped_data$target_country, "PER", "Peru")
+}
 View(prepped_data)
 ```
 
@@ -68,18 +125,43 @@ View(prepped_data)
 PSD_matrix <- as.matrix(prepped_data)
 #View(PSD_matrix)
 
-PSD.g <- graph_from_edgelist(PSD_matrix, directed = TRUE)
-PSD.g
+PSD.g <- graph_from_edgelist(PSD_matrix, directed = TRUE) #Directed because I want to know which country a contract is coming from
+PSD.g #and where it is going
 ```
 
 # Assign Node and Edge attributes
 ```{r}
-V(PSD.g)$vertex_degree <- degree(PSD.g)# Assign a degree attribute
-edge_weights <- E(PSD.g)$edge_weight <- PSD$nofirm#Make edgeweights the number of firms employed
+#V(PSD.g)$vertex_degree <- degree(PSD.g) #Assign a degree attribute
+set_vertex_attr(
+  PSD.g,
+  name = "degree",
+  value = degree(PSD.g)
+)
+edge_weights <- E(PSD.g)$edge_weight <- PSD$nofirm #Make edgeweights the number of firms employed
+edge_colors <- E(PSD.g)$edge_color <- PSD$task #Make edges different colors based on the type of contracting
 #Preliminary Visualization
-lo_nice = layout_nicely(PSD.g)
-plot(PSD.g, layout = lo_nice, vertex.size = log(V(PSD.g)$vertex_degree) * 6, edge.width = edge_weights, edge.arrow.size = 0.9,
-     title = "Private Military Contracts by Country",
-     vertex.label.color = "black")
+set.seed(375)#For reproduceability
+lo_nice = layout_nicely(PSD.g)#layout_nicely automatically selects the best layout
+png(file="PrivateSecurityNetwork.png", width=10000, height=10000, res = 400)#Save the visualization as a png
+plot(PSD.g, layout = lo_nice, vertex.size = log(V(PSD.g)$vertex_degree) * 2, edge.width = edge_weights, edge.arrow.size = 0.9,
+     vertex.label.color = "black") +
+  title("Private Military Contracts by Country", cex.main = 4) +
+  palette()#cex.main = size of title
+dev.off()#Necessary when saving the visualization as a png
 ```
-Node attribute vs Edge attribute
+
+# Calculate the 5 number summary
+```{r}
+print("PSD.g 5 number summary")
+print("Size:")
+vcount(PSD.g)
+print("Density")
+edge_density(PSD.g)
+print("Components:")
+components(PSD.g)
+print("Diameter:")
+diameter(PSD.g)
+print("Transitivity:")
+transitivity(PSD.g)
+
+```
